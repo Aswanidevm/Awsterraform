@@ -12,7 +12,7 @@ provider "aws" {
   region = var.aws_region
 }
 
-resource "aws_s3_bucket" "hosting_bucket" {
+resource "aws_s3_bucket" "mybucket" {
   bucket = var.bucket_name
 }
 
