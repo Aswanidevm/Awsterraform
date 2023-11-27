@@ -58,9 +58,7 @@ data "aws_iam_policy_document" "mybucket_policy" {
       "s3:GetObject",
       "s3:ListBucket",
     ]
-    effect = [
-       "Allow"
-      ]
+    effect = "Allow"
 
     resources = [
       aws_s3_bucket.mybucket.arn,
