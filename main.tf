@@ -58,7 +58,7 @@ data "aws_iam_policy_document" "mybucket_policy" {
       "s3:GetObject",
       "s3:ListBucket",
     ]
-    Effect = [
+    effect = [
        "Allow"
       ]
 
