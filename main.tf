@@ -102,7 +102,7 @@ resource "aws_s3_object" "object" {
   # For Terraform 0.11.11 and earlier, use the md5() function and the file() function:
   # etag = "${md5(file("path/to/file"))}"
 #  etag = filemd5("./each.key")
-  acl = "public_read"
+  acl = "public-read"
 }
 ## Create a VPC
 #resource "aws_vpc" "example" {
