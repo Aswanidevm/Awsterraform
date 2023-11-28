@@ -12,6 +12,10 @@ provider "aws" {
   region = var.aws_region
 }
 
+module "template_files"{
+  source = "hashicorp/dir/template"
+  base_dir= "${path.module}/webresources"
+}
 resource "aws_s3_bucket" "mybucket" {
   bucket = var.bucket_name
 }
@@ -19,7 +23,7 @@ resource "aws_s3_bucket" "mybucket" {
 resource "aws_s3_bucket_acl" "mybucket_acl" {
 
   bucket = aws_s3_bucket.mybucket.id
-  acl    = "public-read"
+  acl    = "private"
   depends_on = [aws_s3_bucket_ownership_controls.s3_bucket_acl_ownership]
 
 }
@@ -29,10 +33,10 @@ resource "aws_s3_bucket_ownership_controls" "s3_bucket_acl_ownership" {
   rule {
     object_ownership = "BucketOwnerPreferred"
   }
-  depends_on = [aws_s3_bucket_public_access_block.mybucket]
+  depends_on = [aws_s3_bucket_public_access_block.public]
 }
 
-resource "aws_s3_bucket_public_access_block" "mybucket" {
+resource "aws_s3_bucket_public_access_block" "public" {
   bucket = aws_s3_bucket.mybucket.id
 
   block_public_acls       = false
@@ -65,6 +69,40 @@ data "aws_iam_policy_document" "mybucket_policy" {
       "${aws_s3_bucket.mybucket.arn}/*",
     ]
   }
+}
+
+resource "aws_s3_bucket_website_configuration" "website" {
+  bucket = aws_s3_bucket.mybucket.id
+
+  index_document {
+    suffix = "index.html"
+  }
+
+  error_document {
+    key = "error.html"
+  }
+
+  routing_rule {
+    condition {
+      key_prefix_equals = "docs/"
+    }
+    redirect {
+      replace_key_prefix_with = "documents/"
+    }
+  }
+}
+
+resource "aws_s3_object" "object" {
+  bucket = aws_s3_bucket.mybucket.id
+  for_each= module.template_files.files
+  key    = each.key
+  source = "./each.key"
+
+  # The filemd5() function is available in Terraform 0.11.12 and later
+  # For Terraform 0.11.11 and earlier, use the md5() function and the file() function:
+  # etag = "${md5(file("path/to/file"))}"
+  etag = filemd5("./each.key")
+  acl = "public_read"
 }
 ## Create a VPC
 #resource "aws_vpc" "example" {
