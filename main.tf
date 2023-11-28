@@ -96,7 +96,7 @@ resource "aws_s3_object" "object" {
   bucket = aws_s3_bucket.mybucket.id
   for_each= module.template_files.files
   key    = each.key
-  source = "./each.key"
+  source = "${path.module}/webresources"
 
   # The filemd5() function is available in Terraform 0.11.12 and later
   # For Terraform 0.11.11 and earlier, use the md5() function and the file() function:
